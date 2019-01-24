@@ -1,0 +1,301 @@
+%%%%%%%%%%%%%%%%	Table of Contents %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+ % Line || Description 
+ %  10  |Procedures	
+ %  11	|	Procedures for General Shapes
+ %  29  |	Procedures for Predefined Items
+ %  62  |	Procedures for Formatting
+ % 107  |Main Program 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%----- Procedures -----%%
+  %% General Shape Procedures
+	/traceBox { %% stack: height width LeftX TopY
+		newpath
+		moveto                    %% stack before moveto : height width LeftX TopY   stack after: height width
+		dup  0     rlineto        %% stack before rlineto: height width width 0      stack after: height width
+		exch neg 0 exch  rlineto  %% stack before rlineto: width 0 -height           stack after: width
+		neg  0     rlineto        %% stack before rlineto: -width 0                  stack after: empty
+		closepath
+	} def
+	
+	/traceTriangle { %% stack: width height
+		dup 3 1 roll  
+		neg     rlineto
+		0 exch  rlineto
+		closepath
+	} def
+	
+	/traceX { %% stack: size centerX centerY
+	
+	} def
+	
+  %% Predefined Procedures 
+	/drawMount { %%stack: x y
+		newpath
+		dup 3 2 roll dup 4 1 roll exch             %%stack after: x y x y 
+		20 0 360 arc                               %%stack after: x y 
+		1 1 0.4 setrgbcolor gsave fill grestore    %%stack after: x y
+		0 0 0   setrgbcolor	stroke
+		        16 0 360 arc                       %%stack after: empty
+		1 1 1   setrgbcolor gsave fill grestore
+		0 0 0   setrgbcolor 0.5 setlinewidth stroke
+	} def
+	
+	/drawRibbonCable {
+		newpath
+		/X exch def
+		12 {
+			X 612 18 180 270 arc stroke
+			X 576 18 0   90  arc stroke
+			/X X 6 add def
+		} repeat
+	} def
+	
+	
+	/drawUSBPort { %% stack: LeftX TopY  
+		newpath
+		/TopY exch def
+		/LeftX exch def
+		100 90 LeftX TopY 
+		traceBox gsave 0.8 setgray fill
+		grestore resetRGB stroke
+		
+		newpath
+		LeftX TopY moveto
+		15    -60  rmoveto
+		3     0    rlineto
+		5     -21  rlineto
+		4     0    rlineto
+		5     21   rlineto
+		3     0    rlineto
+		20    0    rmoveto
+		3     0    rlineto
+		5     -21  rlineto
+		4     0    rlineto
+		5     21   rlineto
+		3     0    rlineto
+		stroke
+	} def
+	
+	/drawCPU { %% stack: Height Width LeftX TopY #OfPins
+		newpath
+		/Pins exch def
+		dup /TopY   exch def 4 1 roll 
+		dup /LeftX  exch def 4 1 roll
+		dup /width  exch def 4 1 roll
+		dup /height exch def 4 1 roll
+		0 0 0 setrgbcolor traceBox
+		currentpoint			fill
+		2 setlinewidth 0.7 setgray
+		moveto
+		
+		Pins {
+			width Pins div 1 sub 0 rmoveto
+			0                    8 rlineto
+			0                   -8 rmoveto
+		} repeat
+		width Pins div 1 sub height neg rmoveto 
+		Pins {
+			width Pins div 1 sub neg 0 rmoveto
+			0                       -8 rlineto
+			0                        8 rmoveto
+		} repeat stroke
+		resetRGB
+	} def
+	
+	/drawLED { %% stack: Red Green Blue centerX centerY
+		newpath
+		/centerY exch def
+		/centerX exch def
+		centerX centerY 16 0 360 arc
+		setrgbcolor fill
+		0.8 setgray
+		centerX centerY moveto
+		 0      8       rlineto
+		22      0       rlineto
+		centerX centerY moveto
+		0      -8       rlineto
+		18      0       rlineto
+		stroke
+		resetRGB
+	} def
+	
+	%%/drawGPIO [ %% stack: Height Width LeftX TopY #OfPins
+		%%/GPins exch def
+		%%0 0 0 setrgbcolor
+		%%traceBox fill
+		%%resetRGB
+	%%} def
+	
+	/drawNAND { %%stack: centerX centerY	
+	} def
+	
+	/drawTrash { %%stack: centerX centerY
+		exch 14 exch 14 sub 
+		moveto
+		currentpoint 2 0 360 arc
+	} def
+	
+  %% Formatting Procedures	
+	/resetRGB {
+		1 setlinewidth
+		0 0 0 setrgbcolor
+	} def
+	
+	/setMainFont {
+		1 1 1 setrgbcolor /Courier findfont 14 scalefont setfont
+	} def
+	
+	/setMain2Font {
+		1 1 1 setrgbcolor /Courier findfont 20 scalefont setfont
+	} def
+	
+	/setCPUFont {
+		1 1 1 setrgbcolor /Times-Bold findfont 16 scalefont setfont
+	} def
+	
+  %% Procedures for XY Grid %%
+	/xLine         0  def
+	/yLine         0  def
+	/lineIncrement 36 def
+	
+	/drawXLine {
+		newpath
+		xLine 0   moveto
+		0     792 rlineto
+		stroke
+	} def
+	
+	/drawYLine {
+		newpath
+		0   yLine  moveto
+		612 0      rlineto
+		stroke
+	} def
+
+	/makeGrid {
+		1 setlinewidth 0 0 0 setrgbcolor
+		17 {
+			drawXLine
+			/xLine xLine lineIncrement add def
+		} repeat
+		22 {
+			drawYLine
+			/yLine yLine lineIncrement add def
+		} repeat
+	} def
+
+%%----- Main Program -----%%  
+  %% Main Board %%
+	720 540 36 756 
+	traceBox  
+	0 0.4 0 setrgbcolor   
+	fill
+	
+  %% CutOuts %%
+	72  720 drawMount
+	72  72  drawMount
+	540 72  drawMount
+	
+   %Top half-circle mount
+	306 756 36 180 360 arc 
+	1 1 1 setrgbcolor fill
+	resetRGB
+	
+  %% Draw XY Grid %%
+	makeGrid
+	
+%%%% CircuitBoard Elements %%%%
+  %% Screen
+	0.5 setlinewidth 
+	1 0 0 setrgbcolor
+	234 drawRibbonCable
+	0 1 0 setrgbcolor
+	235 drawRibbonCable
+	0 0 1 setrgbcolor
+	236 drawRibbonCable
+	1 1 0 setrgbcolor
+	237 drawRibbonCable
+  
+	0 0 0 setrgbcolor
+	72 360 72 684 traceBox  gsave    
+	0 0.2 0.6 setrgbcolor fill
+	grestore 8 setlinewidth stroke
+	
+	36 144 216 576 traceBox gsave
+	0.8 setgray fill
+	grestore 1 setlinewidth stroke
+   % Screen Text
+	setMainFont
+	80 665 moveto      (C:\\Users\\Austin Kelley>) show 
+	1 1 0       setrgbcolor ( echo) show 
+	0.2 0.8 0.2 setrgbcolor ( $ContactInfo) show 
+	1 1 1       setrgbcolor 80 650 moveto (Phone   : 813-523-7321) show
+	80 635 moveto      (Address : 2906 Fritzke Rd) show
+	80 620 moveto      (Email   : Yethlyreom@protonmail.com ) show 
+	
+   % Conductive Tracings
+    0 0.8 0 setrgbcolor
+	18 27 522 639 traceBox fill
+	522 621 moveto 18 9 traceTriangle fill
+	9 setlinewidth
+	544 630 moveto 0 -420 rlineto stroke
+	540 390 moveto -112 0  rlineto stroke
+	27 18 486 639 traceBox fill
+	486 612 moveto 9 6 traceTriangle fill
+	499 612 moveto 0 -106 rlineto stroke
+	500 510 moveto -72 0  rlineto stroke
+	resetRGB
+	
+  %% USB Ports
+    117 144 drawUSBPort
+    261 144 drawUSBPort
+    405 144 drawUSBPort
+   
+  %% Battery & CPU
+	504 684 54 0 360 arc gsave
+	0.8 0.8 1 setrgbcolor fill
+	resetRGB
+	grestore stroke
+	
+	108 324 144 504 20 drawCPU
+	108 252 180 324 12 drawCPU
+   % CPU Text
+    setCPUFont
+    170 470 moveto (Bachelor's of Computer Engineering) show
+	192 450	moveto (University of South Florida) show
+	174 430 moveto (GPA 3.04   Graduation Year: 2020) show
+	
+	210 300 moveto (Cisco Certified Entry Level) show
+	230 285 moveto (Technician \(CCENT\)) show
+	184 250 moveto (Member of USF Microsoft Software) show
+	230 235 moveto (Development Network) show
+	
+	137 345 moveto setMain2Font
+	(Credentials/Extracurriculars) show
+	resetRGB
+	
+  %% LEDs
+	1 0 0 90 558 drawLED
+	0 1 0 90 522 drawLED
+	0 0 1 90 486 drawLED
+	1 0 0 90 450 drawLED
+	0 1 0 90 414 drawLED
+	0 0 1 90 378 drawLED
+	
+   %% USB Text 
+	setCPUFont
+	180 155 moveto (Experienced with:) show
+    setMainFont 0 0 0 setrgbcolor
+	124 116 moveto (The C/C++) show
+	136 100  moveto (Family) show
+	285 106 moveto (COBOL)  show
+	426 106 moveto (Python) show
+	
+   %% Trademark Text	
+	0 0 0 setrgbcolor
+	36 10 moveto (PostScript Code for Resume found at GitHub Username: Yethlyreom) show
+	1 1 1 setrgbcolor
+	562 108 moveto 90 rotate(NBN Traceboards) show
+	
+	showpage
